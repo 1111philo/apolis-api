@@ -1,6 +1,6 @@
 import { router, event, setEvent, logEvent } from '#src/utils';
 import * as authRoutes from "./auth";
-import { customMessageForgotPassword, customMessageSignUp, customMessageUpdateUserAttribute, postConfirmationConfirmForgotPassword } from "./cognito";
+import { customMessageForgotPassword, customMessageSignUp, customMessageUpdateUserAttribute, postConfirmationConfirmForgotPassword, postConfirmationConfirmSignUp, preSignUpSignUp } from "./cognito";
 import * as internalRoutes from "./internal";
 import * as publicRoutes from "./public";
 import * as scheduledRoutes from "./scheduled";
@@ -22,7 +22,14 @@ export const authRouter = async () => {
 
 export const cognitoRouter = async () => {
     logEvent(event);
-    if (event.triggerSource === "CustomMessage_SignUp") {
+
+    if (event.triggerSource === "PreSignUp_SignUp") {
+        return preSignUpSignUp();
+    }
+    else if (event.triggerSource === "PostConfirmation_ConfirmSignUp") {
+        return postConfirmationConfirmSignUp();
+    }
+    else if (event.triggerSource === "CustomMessage_SignUp") {
         return customMessageSignUp();
     }
     else if (event.triggerSource === "CustomMessage_UpdateUserAttribute") {
