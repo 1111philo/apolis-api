@@ -19,7 +19,7 @@ export const test = async () => {
     console.log(JSON.stringify({ id, name, action }));
 
     return {
-        message: 'Test received!',
+        message: 'Test received!!',
         users: response,
         id,
         name,
