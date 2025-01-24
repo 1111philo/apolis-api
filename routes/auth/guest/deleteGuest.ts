@@ -6,7 +6,7 @@ export const deleteGuest = async () => {
     await db.query({
         text: `DELETE FROM "guests" WHERE "guest_id"=$1`,
         values: [guest_id],
-    }));
+    });
     await db.clean();
     return { success: true };
 }
