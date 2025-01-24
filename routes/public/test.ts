@@ -4,8 +4,8 @@ export const test = async () => {
     // Always connect to the db first, then clean when you're done.
     await db.connect();
     const response = (await db.query({
-        text: `SELECT * FROM "test" WHERE "name"=$1`,
-        values: ['chris'],
+        text: `SELECT * FROM "users"`,
+        values: [],
     })).rows;
     await db.clean();
 
