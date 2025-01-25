@@ -42,7 +42,7 @@ export const cognitoRouter = async () => {
         return postConfirmationConfirmForgotPassword();
     }
     else {
-        return;
+        return event;
     }
 }
 

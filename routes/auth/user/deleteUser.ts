@@ -2,11 +2,10 @@ import { db, event } from '#src/utils'
 
 export const deleteUser = async () => {
     await db.connect();
-    let response;
-    response = (await db.query({
+    await db.query({
         text: `DELETE FROM "users" WHERE "user_id"=$1`,
-        values: [event.queryStringParameters.user_id],
-    })).rows;
+        values: [event.body.user_id],
+    });
     await db.clean();
-    return response;
+    return { success: true };
 }

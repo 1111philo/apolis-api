@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto'
 
 export const addUser = async () => {
     await db.connect();
-    let response;
     const username = randomUUID();
     const { User } = await cognito.adminCreateUser({
         UserPoolId: process.env.USER_POOL_ID,
@@ -23,10 +22,10 @@ export const addUser = async () => {
         Password: event.body.password ?? '123456',
     });
     const sub = User.Attributes.find(obj => obj.Name === 'sub')?.Value;
-    response = (await db.query({
-        text: `INSERT INTO "users" ("sub", "email", "name") VALUES ($1, $2, $3)`,
+    const user_id = (await db.query({
+        text: `INSERT INTO "users" ("sub", "email", "name") VALUES ($1, $2, $3) RETURNING "user_id"`,
         values: [sub, event.body.email, event.body.name],
-    })).rows;
+    })).rows?.[0]?.user_id;
     await db.clean();
-    return response;
+    return { user_id };
 }

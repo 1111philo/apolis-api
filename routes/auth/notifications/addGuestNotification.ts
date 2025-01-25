@@ -1,6 +1,6 @@
 import { db, event } from '#src/utils'
 
-export const addGuestNotifications = async () => {
+export const addGuestNotification = async () => {
     const { guest_id, message, status } = event.body;
     await db.connect();
     const notification_id = (await db.query({
