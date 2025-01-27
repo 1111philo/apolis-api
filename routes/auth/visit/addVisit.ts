@@ -16,5 +16,5 @@ export const addVisit = async () => {
         guest_service_ids.push(guest_service_id);
     }
     await db.clean();
-    return { visit_id, guest_service_ids };
+    return { visit_id };
 }

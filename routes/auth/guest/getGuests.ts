@@ -1,23 +1,40 @@
 import { db, event } from '#src/utils'
 
 export const getGuests = async () => {
+    const limit = event.body?.limit ?? 10;
+    const offset = event.body?.offset ?? 0;
+    const first_name = event.body?.first_name ?? '%%';
+    const last_name = event.body?.last_name ?? '%%';
+    const dob = event.body?.dob ?? '%%';
+    const guest_id = event.body?.guest_id ?? '%%';
+
     await db.connect();
     const rows = (await db.query({
         text: `
-            SELECT CAST(COUNT(g.guest_id) AS INT) AS total_guests, g.*,
-            jsonb_agg(DISTINCT to_jsonb(gn.*)) FILTER (WHERE gn.notification_id IS NOT NULL) as notifications,
-            jsonb_agg(DISTINCT to_jsonb(s.*)) FILTER (WHERE s.service_id IS NOT NULL) as services
+            SELECT CAST(COUNT(g.guest_id) AS INT) AS total, g.*,
+            jsonb_agg(DISTINCT to_jsonb(gn.*)) FILTER (WHERE gn.notification_id IS NOT NULL) as guest_notifications,
+            jsonb_agg(DISTINCT to_jsonb(s.*)) FILTER (WHERE s.service_id IS NOT NULL) as guest_services
             FROM "guests" g
             LEFT JOIN "guest_notifications" gn ON gn.guest_id = g.guest_id
-            LEFT JOIN "services" s ON s.guest_id = g.guest_id 
-            GROUP BY g.guest_id;
+            LEFT JOIN "guest_services" s ON s.guest_id = g.guest_id 
+            WHERE g.first_name ILIKE $1 AND g.last_name ILIKE $2 OR g.dob ILIKE $3 OR g.guest_id=$4
+            GROUP BY g.guest_id
+            LIMIT $5 OFFSET $6
         `,
-        values: [],
+        values: [first_name, last_name, dob, guest_id, limit, offset],
     })).rows.map(row => ({
         ...row,
-        notifications: row?.notifications ?? [],
-        services: row?.services ?? [],
+        guest_notifications: row?.notifications ?? [],
+        guest_services: row?.services ?? [],
     }));
     await db.clean();
-    return rows;
+    return {
+        rows: rows?.map(row => {
+            delete row.total;
+            return row;
+        }),
+        total: rows?.[0]?.total ?? 0,
+        limit,
+        offset,
+    };
 }
