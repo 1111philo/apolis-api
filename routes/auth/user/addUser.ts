@@ -23,8 +23,8 @@ export const addUser = async () => {
     });
     const sub = User.Attributes.find(obj => obj.Name === 'sub')?.Value;
     const user_id = (await db.query({
-        text: `INSERT INTO "users" ("sub", "email", "name") VALUES ($1, $2, $3) RETURNING "user_id"`,
-        values: [sub, event.body.email, event.body.name],
+        text: `INSERT INTO "users" ("sub", "email", "name", "role") VALUES ($1, $2, $3, $4) RETURNING "user_id"`,
+        values: [sub, event.body.email, event.body.name, event.body.role],
     })).rows?.[0]?.user_id;
     await db.clean();
     return { user_id };

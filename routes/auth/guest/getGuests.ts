@@ -3,31 +3,41 @@ import { db, event } from '#src/utils'
 export const getGuests = async () => {
     const limit = event.body?.limit ?? 10;
     const offset = event.body?.offset ?? 0;
-    const first_name = event.body?.first_name ?? '%%';
-    const last_name = event.body?.last_name ?? '%%';
-    const dob = event.body?.dob ?? '%%';
-    const guest_id = event.body?.guest_id ?? '%%';
+    let first_name = event.body?.first_name && `%${event.body.first_name}%`;
+    let last_name = event.body?.last_name && `%${event.body.last_name}%`;
+    let dob = event.body?.dob && `%${event.body.dob}%`;
+    let guest_id = event.body?.guest_id;
+    const query = event.body?.query && `%${event.body.query}%`;
+
+    if (query) {
+        first_name = query;
+        last_name = query;
+        dob = query;
+        guest_id = query;
+    }
 
     await db.connect();
     const rows = (await db.query({
         text: `
-            SELECT CAST(COUNT(g.guest_id) AS INT) AS total, g.*,
-            jsonb_agg(DISTINCT to_jsonb(gn.*)) FILTER (WHERE gn.notification_id IS NOT NULL) as guest_notifications,
-            jsonb_agg(DISTINCT to_jsonb(s.*)) FILTER (WHERE s.service_id IS NOT NULL) as guest_services
+            SELECT g.*, g.dob::text, CAST(COUNT(*) OVER() AS INT) AS total
             FROM "guests" g
-            LEFT JOIN "guest_notifications" gn ON gn.guest_id = g.guest_id
-            LEFT JOIN "guest_services" s ON s.guest_id = g.guest_id 
-            WHERE g.first_name ILIKE $1 AND g.last_name ILIKE $2 OR g.dob ILIKE $3 OR g.guest_id=$4
-            GROUP BY g.guest_id
+            WHERE (
+                CASE 
+                    WHEN $1::text IS NOT NULL OR $2::text IS NOT NULL OR $3::text IS NOT NULL THEN
+                        ($1::text IS NULL OR g.first_name ILIKE $1)
+                        OR ($2::text IS NULL OR g.last_name ILIKE $2)
+                        OR ($3::text IS NULL OR g.dob::text ILIKE $3)
+                        OR ($4::text IS NULL OR g.guest_id::text ILIKE $4)
+                    ELSE TRUE
+                END
+            )
+            ORDER BY g.guest_id
             LIMIT $5 OFFSET $6
         `,
         values: [first_name, last_name, dob, guest_id, limit, offset],
-    })).rows.map(row => ({
-        ...row,
-        guest_notifications: row?.notifications ?? [],
-        guest_services: row?.services ?? [],
-    }));
+    })).rows;
     await db.clean();
+
     return {
         rows: rows?.map(row => {
             delete row.total;
