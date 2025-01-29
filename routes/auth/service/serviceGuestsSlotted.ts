@@ -1,7 +1,16 @@
 import { db } from '#src/utils';
 
-export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null } = {}) => {
+export const serviceGuestsSlotted = async (req) => {
     await db.connect();
+
+    // Extract `service_id` and `guest_id` from the request body
+    const { service_id = null, guest_id = null } = req.body || {}; 
+
+    // Debug: Log request body
+    const debugLog = {
+        receivedParams: { service_id, guest_id },
+        requestBody: req.body || null
+    };
 
     let queryText = `
         SELECT 
@@ -21,17 +30,17 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
 
     let values = ['Slotted']; // Initial value
 
-    // Ensure `service_id` is an integer
-    if (service_id) {
-        service_id = parseInt(service_id, 10);
-        values.push(service_id);
+    if (service_id !== null) {
+        const parsedServiceId = parseInt(service_id, 10);
+        if (isNaN(parsedServiceId)) throw new Error(`Invalid service_id: ${service_id}`);
+        values.push(parsedServiceId);
         queryText += ` AND guest_services.service_id = $${values.length}`;
     }
 
-    // Ensure `guest_id` is an integer
-    if (guest_id) {
-        guest_id = parseInt(guest_id, 10);
-        values.push(guest_id);
+    if (guest_id !== null) {
+        const parsedGuestId = parseInt(guest_id, 10);
+        if (isNaN(parsedGuestId)) throw new Error(`Invalid guest_id: ${guest_id}`);
+        values.push(parsedGuestId);
         queryText += ` AND guests.guest_id = $${values.length}`;
     }
 
@@ -40,11 +49,11 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
     
     await db.clean();
 
-    // Return response with debug info
+    // Return API response with debug info
     return {
         rows,
         debug: {
-            receivedParams: { service_id, guest_id },
+            ...debugLog, // Include received requestBody for debugging
             generatedQuery: queryText,
             queryValues: values
         }
