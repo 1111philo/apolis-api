@@ -1,7 +1,15 @@
 import { db } from '#src/utils';
 
-export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null } = {}) => {
+export const serviceGuestsSlotted = async (req) => {
     await db.connect();
+
+    const { service_id = null, guest_id = null } = req.body || {}; // <-- Ensure request body is used correctly
+
+    // Debugging: Log incoming data
+    const debugLog = {
+        receivedParams: { service_id, guest_id },
+        requestBody: req.body // <-- Log full request body
+    };
 
     let queryText = `
         SELECT 
@@ -21,30 +29,24 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
 
     let values = ['Slotted']; // Initial value
 
-    // Ensure `service_id` is an integer
     if (service_id) {
-        service_id = parseInt(service_id, 10);
-        values.push(service_id);
+        values.push(parseInt(service_id, 10)); // Ensure it's an integer
         queryText += ` AND guest_services.service_id = $${values.length}`;
     }
 
-    // Ensure `guest_id` is an integer
     if (guest_id) {
-        guest_id = parseInt(guest_id, 10);
-        values.push(guest_id);
+        values.push(parseInt(guest_id, 10));
         queryText += ` AND guests.guest_id = $${values.length}`;
     }
 
-    // Execute query
     const rows = (await db.query({ text: queryText, values })).rows;
-    
     await db.clean();
 
-    // Return response with debug info
+    // Return API response with debug info
     return {
         rows,
         debug: {
-            receivedParams: { service_id, guest_id },
+            ...debugLog, // Include request body and received parameters
             generatedQuery: queryText,
             queryValues: values
         }
