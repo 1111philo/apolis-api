@@ -3,7 +3,7 @@ import { db } from '#src/utils';
 export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null } = {}) => {
     await db.connect();
 
-    let queryText = `
+    let queryText = 
         SELECT 
             guests.guest_id,
             guests.first_name,
@@ -17,7 +17,7 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
         FROM guests
         INNER JOIN guest_services ON guests.guest_id = guest_services.guest_id
         WHERE guest_services.status = $1
-    `;
+    ;
 
     let values = ['Slotted']; // Initial value
 
