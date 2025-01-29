@@ -1,9 +1,11 @@
-import { db, event } from '#src/utils';
+import { db } from '#src/utils';
 
 export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null } = {}) => {
     await db.connect();
-    
-    // Base query with placeholders
+
+    console.log("Received parameters:", { service_id, guest_id });
+
+    // Base query
     let queryText = `
         SELECT 
             guests.guest_id,
@@ -20,20 +22,26 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
         WHERE guest_services.status = $1
     `;
 
-    let values = ['Slotted']; // Initialize values array
+    let values = ['Slotted']; // Initial value
 
-    // Dynamically add filtering conditions
+    // Add filtering dynamically
     if (service_id) {
         values.push(service_id);
         queryText += ` AND guest_services.service_id = $${values.length}`;
     }
-    
+
     if (guest_id) {
         values.push(guest_id);
         queryText += ` AND guests.guest_id = $${values.length}`;
     }
 
+    console.log("Executing query:", queryText);
+    console.log("Query values:", values);
+
     const rows = (await db.query({ text: queryText, values })).rows;
+    
     await db.clean();
+    
+    console.log("API Response:", rows);
     return rows;
 };
