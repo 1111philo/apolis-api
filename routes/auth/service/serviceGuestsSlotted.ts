@@ -17,10 +17,8 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
             guest_services.queued_at
         FROM guests
         INNER JOIN guest_services ON guests.guest_id = guest_services.guest_id
-        WHERE guest_services.status = $1
+        WHERE guest_services.status = 'Slotted'
     `;
-
-    let values = ['Slotted'];
     
     // Dynamically add filtering conditions
     if (service_id) {
