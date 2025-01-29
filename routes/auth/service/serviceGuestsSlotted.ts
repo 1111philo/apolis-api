@@ -3,9 +3,6 @@ import { db } from '#src/utils';
 export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null } = {}) => {
     await db.connect();
 
-    console.log("Received parameters:", { service_id, guest_id });
-
-    // Base query
     let queryText = `
         SELECT 
             guests.guest_id,
@@ -24,24 +21,32 @@ export const serviceGuestsSlotted = async ({ service_id = null, guest_id = null 
 
     let values = ['Slotted']; // Initial value
 
-    // Add filtering dynamically
+    // Ensure `service_id` is an integer
     if (service_id) {
+        service_id = parseInt(service_id, 10);
         values.push(service_id);
         queryText += ` AND guest_services.service_id = $${values.length}`;
     }
 
+    // Ensure `guest_id` is an integer
     if (guest_id) {
+        guest_id = parseInt(guest_id, 10);
         values.push(guest_id);
         queryText += ` AND guests.guest_id = $${values.length}`;
     }
 
-    console.log("Executing query:", queryText);
-    console.log("Query values:", values);
-
+    // Execute query
     const rows = (await db.query({ text: queryText, values })).rows;
     
     await db.clean();
-    
-    console.log("API Response:", rows);
-    return rows;
+
+    // Return response with debug info
+    return {
+        rows,
+        debug: {
+            receivedParams: { service_id, guest_id },
+            generatedQuery: queryText,
+            queryValues: values
+        }
+    };
 };
