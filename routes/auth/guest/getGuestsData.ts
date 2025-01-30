@@ -1,14 +1,17 @@
-import { db, event } from "#src/utils";
+import {
+  db,
+  event,
+  extractPaginationParams,
+  extractSortParams,
+} from "#src/utils";
 
 export const getGuestsData = async () => {
-  const limit = event.body?.limit ?? 10;
-  const offset = event.body?.offset ?? 0;
+  const { limit, offset } = extractPaginationParams(event);
   const first_name = event.body?.first_name ?? "%%";
   const last_name = event.body?.last_name ?? "%%";
   const dob = event.body?.dob ?? "%%";
   const guest_id = event.body?.guest_id ?? "%%";
-  const sort = event.body?.sort === "desc" ? "DESC" : "ASC";
-  const sortBy = event.body?.sortBy ?? "id";
+  const { sortBy, sort } = extractSortParams(event);
 
   await db.connect();
   const rows = (

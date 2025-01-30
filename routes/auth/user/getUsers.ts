@@ -1,10 +1,13 @@
-import { db, event } from "#src/utils";
+import {
+  db,
+  event,
+  extractPaginationParams,
+  extractSortParams,
+} from "#src/utils";
 
 export const getUsers = async () => {
-  const limit = event.queryStringParameters?.limit ?? 10;
-  const offset = event.queryStringParameters?.offset ?? 0;
-  const sort = event.queryStringParameters?.sort === "desc" ? "DESC" : "ASC";
-  const sortBy = event.queryStringParameters?.sortBy ?? "id";
+  const { limit, offset } = extractPaginationParams(event);
+  const { sortBy, sort } = extractSortParams(event);
 
   await db.connect();
   const rows = (

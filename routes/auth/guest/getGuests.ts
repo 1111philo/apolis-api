@@ -1,15 +1,18 @@
-import { db, event } from "#src/utils";
+import {
+  db,
+  event,
+  extractPaginationParams,
+  extractSortParams,
+} from "#src/utils";
 
 export const getGuests = async () => {
-  const limit = event.body?.limit ?? 10;
-  const offset = event.body?.offset ?? 0;
+  const { limit, offset } = extractPaginationParams(event);
   let first_name = event.body?.first_name && `%${event.body.first_name}%`;
   let last_name = event.body?.last_name && `%${event.body.last_name}%`;
   let dob = event.body?.dob && `%${event.body.dob}%`;
   let guest_id = event.body?.guest_id;
   const query = event.body?.query && `%${event.body.query}%`;
-  const sort = event.body?.sort === "desc" ? "DESC" : "ASC";
-  const sortBy = event.body?.sortBy ?? "id";
+  const { sortBy, sort } = extractSortParams(event);
 
   if (query) {
     first_name = query;
