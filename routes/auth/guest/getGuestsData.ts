@@ -17,7 +17,7 @@ export const getGuestsData = async () => {
   const rows = (
     await db.query({
       text: `
-            SELECT g.*, g.dob::text, CAST(COUNT(g.guest_id) AS INT) AS total,
+            SELECT g.*, g.dob::text, COUNT(*) OVER()::int as total,
             jsonb_agg(DISTINCT to_jsonb(gn.*)) FILTER (WHERE gn.notification_id IS NOT NULL) as guest_notifications,
             jsonb_agg(DISTINCT to_jsonb(s.*)) FILTER (WHERE s.service_id IS NOT NULL) as guest_services
             FROM "guests" g
@@ -25,7 +25,6 @@ export const getGuestsData = async () => {
             LEFT JOIN "guest_services" s ON s.guest_id = g.guest_id
             WHERE g.first_name ILIKE $1 AND g.last_name ILIKE $2 OR g.dob::text ILIKE $3 OR g.guest_id::text LIKE $4
             GROUP BY g.guest_id
-            ORDER BY $7 $8
             LIMIT $5 OFFSET $6
         `,
       values: [
@@ -35,8 +34,6 @@ export const getGuestsData = async () => {
         guest_id,
         limit,
         offset,
-        sortBy,
-        sort,
       ],
     })
   ).rows.map((row) => ({
@@ -46,11 +43,11 @@ export const getGuestsData = async () => {
   }));
   await db.clean();
   return {
+    total: rows?.[0]?.total ?? 0,
     rows: rows?.map((row) => {
       delete row.total;
       return row;
     }),
-    total: rows?.[0]?.total ?? 0,
     limit,
     offset,
   };

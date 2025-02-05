@@ -25,7 +25,7 @@ export const getGuests = async () => {
   const rows = (
     await db.query({
       text: `
-            SELECT g.*, g.dob::text, CAST(COUNT(*) OVER() AS INT) AS total
+            SELECT g.*, g.dob::text, COUNT(*) OVER()::int as total
             FROM "guests" g
             WHERE (
                 CASE
@@ -37,7 +37,6 @@ export const getGuests = async () => {
                     ELSE TRUE
                 END
             )
-            ORDER BY $7 $8
             LIMIT $5 OFFSET $6
         `,
       values: [
@@ -47,19 +46,17 @@ export const getGuests = async () => {
         guest_id,
         limit,
         offset,
-        sortBy,
-        sort,
       ],
     })
   ).rows;
   await db.clean();
 
   return {
+    total: rows?.[0]?.total ?? 0,
     rows: rows?.map((row) => {
       delete row.total;
       return row;
     }),
-    total: rows?.[0]?.total ?? 0,
     limit,
     offset,
   };
