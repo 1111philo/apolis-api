@@ -1,14 +1,12 @@
 export let event = {
-  httpMethod: "",
-  path: "",
+  httpMethod: '',
+  path: '',
   queryStringParameters: {},
   body: {},
   requestContext: {},
 };
 
 export const setEvent = (rawEvent) => {
-  console.log(rawEvent);
-
   try {
     rawEvent.body ? (rawEvent.rawBody = rawEvent.body) : null;
     rawEvent.body ? (rawEvent.body = JSON.parse(rawEvent.body)) : null;
@@ -51,8 +49,8 @@ export const extractPaginationParams = (event) => {
 
 export const extractSortParams = (event) => {
   let sortParams = {
-    sortBy: "id",
-    sort: "asc",
+    sortBy: 'user_id',
+    sort: 'asc',
   };
   try {
     if (event.body) {

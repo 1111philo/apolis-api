@@ -21,6 +21,7 @@ export const getUsers = async () => {
     : 'ASC';
 
   await db.connect();
+  console.log('connected to db');
   const rows = (
     await db.query({
       text: `SELECT * FROM "users" ORDER BY ${sanitizedSortBy} ${sanitizedSort} LIMIT $1 OFFSET $2`,
