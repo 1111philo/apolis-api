@@ -4,6 +4,8 @@ services:
   localstack:
     image: localstack/localstack:latest
     container_name: localstack
+    networks:
+      - localstack_network
     ports:
       - "4566:4566"            # LocalStack edge port
     environment:
@@ -11,12 +13,21 @@ services:
       - DEBUG=1                # Enable debug mode for troubleshooting
       - LAMBDA_EXECUTOR=docker # Use Docker executor for Lambda functions
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - USER_POOL_ID=test
+      - WEB_CLIENT_ID=test
+      - NODE_ENV=development
+      - DB_USER=postgres
+      - DB_HOST=postgres
+      - DB_NAME=mydatabase
+      - DB_PASSWORD=postgres
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
   postgres:
     image: postgres:latest
     container_name: postgres
+    networks:
+      - localstack_network
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -25,6 +36,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./seed_dev.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   postgres_data:
+
+networks:
+  localstack_network:
+    driver: bridge
