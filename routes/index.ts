@@ -15,7 +15,6 @@ import { CognitoJwtVerifier } from 'aws-jwt-verify';
 
 let verifier;
 if (process.env.NODE_ENV === 'development') {
-  console.log('development verifier');
   verifier = {
     verify: async (token: string) => {
       return {
@@ -37,9 +36,7 @@ export const authRouter = async () => {
     const claims = await verifier.verify(
       event.headers.authorization.replace('Bearer ', '')
     );
-    console.log(claims);
     const updatedEvent = setEvent({ ...event, claims });
-    console.log('event was updated??');
     logEvent(updatedEvent);
     return router(authRoutes);
   } catch (err) {
