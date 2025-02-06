@@ -9,19 +9,19 @@ const allowedSortFields = ['user_id', 'role', 'name', 'email'];
 const allowedSortDirections = ['ASC', 'DESC'];
 
 export const getUsers = async () => {
+  const defaultSortCol = allowedSortFields[0];
   const { limit, offset } = extractPaginationParams(event);
-  const { sortBy, sort } = extractSortParams(event);
+  const { sortBy, sort } = extractSortParams(event, defaultSortCol);
 
   // PostgreSQL injection prevention since we need to directly interpolate the sortBy
   const sanitizedSortBy = allowedSortFields.includes(sortBy)
     ? sortBy
-    : 'user_id';
+    : defaultSortCol;
   const sanitizedSort = allowedSortDirections.includes(sort.toUpperCase())
     ? sort.toUpperCase()
     : 'ASC';
 
   await db.connect();
-  console.log('connected to db');
   const rows = (
     await db.query({
       text: `SELECT * FROM "users" ORDER BY ${sanitizedSortBy} ${sanitizedSort} LIMIT $1 OFFSET $2`,

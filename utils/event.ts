@@ -47,9 +47,9 @@ export const extractPaginationParams = (event) => {
   return paginationParams;
 };
 
-export const extractSortParams = (event) => {
+export const extractSortParams = (event, defaultSortCol) => {
   let sortParams = {
-    sortBy: 'user_id',
+    sortBy: defaultSortCol,
     sort: 'asc',
   };
   try {
