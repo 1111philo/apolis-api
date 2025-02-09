@@ -43,7 +43,7 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Guest Notifications Table
-CREATE TABLE GuestNotifications (
+CREATE TABLE Guest_Notifications (
     notification_id SERIAL PRIMARY KEY,
     guest_id INT NOT NULL,
     message TEXT NOT NULL,
@@ -53,9 +53,9 @@ CREATE TABLE GuestNotifications (
     FOREIGN KEY (guest_id) REFERENCES Guests(guest_id) ON DELETE CASCADE
 );
 
--- Trigger to update updated_at on GuestNotifications table
+-- Trigger to update updated_at on Guest_Notifications table
 CREATE TRIGGER update_guest_notifications_updated_at
-BEFORE UPDATE ON GuestNotifications
+BEFORE UPDATE ON Guest_Notifications
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
@@ -91,7 +91,7 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Guest Services Table (Tracks Service Status)
-CREATE TABLE GuestServices (
+CREATE TABLE Guest_Services (
     guest_service_id SERIAL PRIMARY KEY,
     guest_id INT NOT NULL,
     service_id INT NOT NULL,
@@ -105,8 +105,8 @@ CREATE TABLE GuestServices (
 );
 
 -- Indexes for GuestServices table
-CREATE INDEX fk_guest_id ON GuestServices (guest_id);
-CREATE INDEX fk_service_id ON GuestServices (service_id);
+CREATE INDEX fk_guest_id ON Guest_Services (guest_id);
+CREATE INDEX fk_service_id ON Guest_Services (service_id);
 
 INSERT INTO users (user_id, email, password, role) VALUES
  (1, 'admin@apolis.dev', 'password', 'admin' ),
@@ -116,3 +116,12 @@ INSERT INTO services (service_id, name, quota) VALUES
  (1, 'Service 1', 10),
  (2, 'Service 2', 20),
  (3, 'Service 3', 30);
+
+INSERT INTO guests (guest_id, first_name, last_name, dob, case_manager) VALUES
+ (1, 'John', 'Doe', '1990-01-01', 'Case Manager 1'),
+ (2, 'Jane', 'Doe', '1995-01-01', 'Case Manager 2');
+
+INSERT INTO guest_services (guest_service_id, guest_id, service_id, status) VALUES
+ (1, 1, 1, 'Queued'),
+ (2, 1, 2, 'Slotted'),
+ (3, 2, 3, 'Completed');
