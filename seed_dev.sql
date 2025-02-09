@@ -104,6 +104,32 @@ CREATE TABLE Guest_Services (
     FOREIGN KEY (service_id) REFERENCES Services(service_id) ON DELETE CASCADE
 );
 
+CREATE OR REPLACE FUNCTION set_timestamp_based_on_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if the status column is being updated
+    IF NEW.status <> OLD.status THEN
+        -- Update the field based on the new status value
+        IF NEW.status = 'Slotted' THEN
+            NEW.slotted_at = CURRENT_TIMESTAMP;
+        ELSIF NEW.status = 'Completed' THEN
+            NEW.completed_at = CURRENT_TIMESTAMP;
+        ELSIF NEW.status = 'QUEUED' THEN
+            NEW.queued_at = CURRENT_TIMESTAMP;
+        END IF;
+    END IF;
+
+    -- Return the modified row
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_set_timestamp_on_status_change
+BEFORE UPDATE ON guest_services
+FOR EACH ROW
+WHEN (OLD.status IS DISTINCT FROM NEW.status) -- Only fire if status changes
+EXECUTE FUNCTION set_timestamp_based_on_status();
+
 -- Indexes for GuestServices table
 CREATE INDEX fk_guest_id ON Guest_Services (guest_id);
 CREATE INDEX fk_service_id ON Guest_Services (service_id);
