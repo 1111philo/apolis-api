@@ -96,7 +96,7 @@ CREATE TABLE Guest_Services (
     guest_id INT NOT NULL,
     service_id INT NOT NULL,
     slot_id INT,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('Queued', 'Slotted', 'Completed')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Queued', 'Slotted', 'Completed')) DEFAULT 'Queued',
     queued_at TIMESTAMP,
     slotted_at TIMESTAMP,
     completed_at TIMESTAMP,
@@ -108,20 +108,20 @@ CREATE TABLE Guest_Services (
 CREATE INDEX fk_guest_id ON Guest_Services (guest_id);
 CREATE INDEX fk_service_id ON Guest_Services (service_id);
 
-INSERT INTO users (user_id, email, password, role) VALUES
- (1, 'admin@apolis.dev', 'password', 'admin' ),
- (2, 'manager@apolis.dev', 'password', 'manager');
+INSERT INTO users (email, password, role) VALUES
+ ('admin@apolis.dev', 'password', 'admin' ),
+ ('manager@apolis.dev', 'password', 'manager');
 
-INSERT INTO services (service_id, name, quota) VALUES
- (1, 'Service 1', 10),
- (2, 'Service 2', 20),
- (3, 'Service 3', 30);
+INSERT INTO services (name, quota) VALUES
+ ('Service 1', 10),
+ ('Service 2', 20),
+ ('Service 3', 30);
 
-INSERT INTO guests (guest_id, first_name, last_name, dob, case_manager) VALUES
- (1, 'John', 'Doe', '1990-01-01', 'Case Manager 1'),
- (2, 'Jane', 'Doe', '1995-01-01', 'Case Manager 2');
+INSERT INTO guests (first_name, last_name, dob, case_manager) VALUES
+ ('John', 'Doe', '1990-01-01', 'Case Manager 1'),
+ ('Jane', 'Doe', '1995-01-01', 'Case Manager 2');
 
-INSERT INTO guest_services (guest_service_id, guest_id, service_id, status) VALUES
- (1, 1, 1, 'Queued'),
- (2, 1, 2, 'Slotted'),
- (3, 2, 3, 'Completed');
+INSERT INTO guest_services (guest_id, service_id, status) VALUES
+ (1, 1, 'Queued'),
+ (1, 2, 'Slotted'),
+ (2, 3, 'Completed');
