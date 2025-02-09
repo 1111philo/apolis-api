@@ -24,10 +24,18 @@ export const getUsers = async () => {
   await db.connect();
   const rows = (
     await db.query({
-      text: `SELECT * FROM "users" ORDER BY ${sanitizedSortBy} ${sanitizedSort} LIMIT $1 OFFSET $2`,
+      text: `SELECT "users".*, COUNT(*) OVER()::int as total FROM "users" ORDER BY ${sanitizedSortBy} ${sanitizedSort} LIMIT $1 OFFSET $2`,
       values: [limit, offset],
     })
   ).rows;
   await db.clean();
-  return rows;
+  return {
+    total: rows?.[0]?.total ?? 0,
+    rows: rows?.map((row) => {
+      delete row.total;
+      return row;
+    }),
+    limit,
+    offset,
+  };
 };

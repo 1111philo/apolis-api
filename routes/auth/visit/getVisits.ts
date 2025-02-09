@@ -9,21 +9,20 @@ export const getVisits = async () => {
     await db.connect();
     const rows = (await db.query({
         text: `
-            SELECT v.*, CAST(COUNT(v.visit_id) as INT) as total 
+            SELECT v.*, COUNT(*) OVER()::int as total
             FROM visits as v 
             WHERE v.created_at > $1 AND v.created_at < $2 
-            GROUP BY v.visit_id
             LIMIT $3 OFFSET $4
         `,
         values: [fromDate, toDate, limit, offset],
     })).rows;
     await db.clean();
     return {
+        total: rows?.[0]?.total ?? 0,
         rows: rows?.map(row => {
             delete row.total;
             return row;
         }),
-        total: rows?.[0]?.total ?? 0,
         limit,
         offset,
     };

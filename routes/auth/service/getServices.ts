@@ -9,10 +9,9 @@ export const getServices = async () => {
     await db.connect();
     const rows = (await db.query({
         text: `
-            SELECT CAST(COUNT(s.service_id) AS INT) AS total, s.*
+            SELECT s.*, COUNT(*) OVER()::int as total
             FROM "services" s
             WHERE ($1::text IS NULL OR s.name ILIKE $1) AND ($2::int IS NULL OR s.service_id = $2)
-            GROUP BY s.service_id
             LIMIT $3 OFFSET $4
         `,
         values: [name, service_id, limit, offset],
@@ -21,11 +20,11 @@ export const getServices = async () => {
     }));
     await db.clean();
     return {
+        total: rows?.[0]?.total ?? 0,
         rows: rows?.map(row => {
             delete row.total;
             return row;
         }),
-        total: rows?.[0]?.total ?? 0,
         limit,
         offset,
     };
