@@ -97,7 +97,7 @@ CREATE TABLE Guest_Services (
     service_id INT NOT NULL,
     slot_id INT,
     status VARCHAR(50) NOT NULL CHECK (status IN ('Queued', 'Slotted', 'Completed')) DEFAULT 'Queued',
-    queued_at TIMESTAMP,
+    queued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     slotted_at TIMESTAMP,
     completed_at TIMESTAMP,
     FOREIGN KEY (guest_id) REFERENCES Guests(guest_id) ON DELETE CASCADE,
@@ -114,7 +114,7 @@ BEGIN
             NEW.slotted_at = CURRENT_TIMESTAMP;
         ELSIF NEW.status = 'Completed' THEN
             NEW.completed_at = CURRENT_TIMESTAMP;
-        ELSIF NEW.status = 'QUEUED' THEN
+        ELSIF NEW.status = 'Queued' THEN
             NEW.queued_at = CURRENT_TIMESTAMP;
         END IF;
     END IF;
