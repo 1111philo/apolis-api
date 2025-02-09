@@ -1,0 +1,4 @@
+{
+  "headers": { "authorization": "Bearer: " },
+  "path": "/auth/getUsers"
+}
