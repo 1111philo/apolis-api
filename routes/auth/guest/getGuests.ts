@@ -26,39 +26,16 @@ export const getGuests = async () => {
     ? sort.toUpperCase()
     : 'ASC';
 
-  if (query) {
-    first_name = query;
-    last_name = query;
-    dob = query;
-    guest_id = query;
-  }
-
   await db.connect();
   const rows = (
     await db.query({
       text: `
             SELECT g.*, g.dob::text, COUNT(*) OVER()::int as total
             FROM "guests" g
-            WHERE (
-                CASE
-                    WHEN $1::text IS NOT NULL OR $2::text IS NOT NULL OR $3::text IS NOT NULL THEN
-                        ($1::text IS NULL OR g.first_name ILIKE $1)
-                        OR ($2::text IS NULL OR g.last_name ILIKE $2)
-                        OR ($3::text IS NULL OR g.dob::text ILIKE $3)
-                        OR ($4::text IS NULL OR g.guest_id::text ILIKE $4)
-                    ELSE TRUE
-                END
-            )
-            LIMIT $5 OFFSET $6
+            WHERE CONCAT(g.first_name, ' ', g.last_name, ' ', g.dob::text, ' ', g.guest_id::text) ILIKE '%' || $1 || '%'
+            LIMIT $2 OFFSET $3
         `,
-      values: [
-        first_name,
-        last_name,
-        dob,
-        guest_id,
-        limit,
-        offset,
-      ],
+      values: [query, limit, offset],
     })
   ).rows;
   await db.clean();
