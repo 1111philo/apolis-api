@@ -18,7 +18,7 @@ services:
       - NODE_ENV=development
       - DB_USER=postgres
       - DB_HOST=postgres
-      - DB_NAME=mydatabase
+      - DB_NAME=apolis
       - DB_PASSWORD=postgres
       - DISABLE_CORS_CHECKS=1
     volumes:
@@ -32,7 +32,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: apolis
     ports:
       - "5432:5432"
     volumes:

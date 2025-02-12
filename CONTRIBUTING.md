@@ -82,3 +82,36 @@ sudo docker-compose down --volumes
 ```
 
 This will clear out the docker volumes and force initialization the next time you bring the containers up.
+
+# Seed Data
+ The local development DB is created by the seed_dev.sql file. It mirrors the schema of the production DB and inserts a few records.
+ If changes are made to the prod DB schema you can mirror this over to the dev environment via the following steps:
+ 1. Take a backup of the prod DB schema:
+ ```
+pg_dump --file "./seed_dev.sql" --host "get this value and the password for the apolis user from an admin" --port "5432" --username "apolis" --format=p --schema-only --no-owner --verbose "apolis"
+```
+2. Add back any seed rows you want at the end of the file
+```
+INSERT INTO public.users (email, role, sub) VALUES
+ ('admin@apolis.dev', 'admin', 'somesub1'),
+ ('manager@apolis.dev', 'manager', 'somesub2');
+
+INSERT INTO public.services (name, quota) VALUES
+ ('Service 1', 10),
+ ('Service 2', 20),
+ ('Service 3', 30);
+
+INSERT INTO public.guests (first_name, last_name, dob, case_manager) VALUES
+ ('John', 'Doe', '1990-01-01', 'Case Manager 1'),
+ ('Jane', 'Doe', '1995-01-01', 'Case Manager 2');
+
+INSERT INTO public.guest_services (guest_id, service_id, status) VALUES
+ (1, 1, 'Queued'),
+ (1, 2, 'Slotted'),
+ (2, 3, 'Completed');
+ ```
+ 3. Rebuild the DB
+ ```
+sudo docker-compose down --volumes
+docker-compose up -d
+```
