@@ -1,17 +1,17 @@
 import { db, event } from '#src/utils';
 
 export const getUser = async () => {
-  const userId = event.body?.user_id;
+  const sub = event.body?.sub;
 
-  if (!userId) {
-    return { error: 'User ID is required' };
+  if (!sub) {
+    return { error: 'User sub is required' };
   }
 
   await db.connect();
   const user = (
     await db.query({
-      text: `SELECT * FROM "users" WHERE "user_id" = $1`,
-      values: [userId],
+      text: `SELECT * FROM "users" WHERE "sub" = $1`,
+      values: [sub],
     })
   ).rows?.[0];
   await db.clean();
