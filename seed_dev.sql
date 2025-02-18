@@ -455,6 +455,8 @@ ALTER TABLE ONLY public.visits
     ADD CONSTRAINT visits_guests_fk FOREIGN KEY (guest_id) REFERENCES public.guests(guest_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
+ALTER TABLE public.services ADD COLUMN queueable BOOLEAN DEFAULT true;
+
 -- Completed on 2025-02-11 19:22:51 CST
 
 --
