@@ -6,10 +6,10 @@ export const addGuestNotification = async () => {
         return { error: `Status must be one of the following: null, Archived, Active` }
     }
     await db.connect();
-    const notification_id = (await db.query({
-        text: `INSERT INTO "guest_notifications" ("guest_id", "message", "status") VALUES ($1, $2, $3) RETURNING "notification_id"`,
+    const notification = (await db.query({
+        text: `INSERT INTO "guest_notifications" ("guest_id", "message", "status") VALUES ($1, $2, $3) RETURNING *`,
         values: [guest_id, message, status],
-    })).rows?.[0]?.notification_id;
+    })).rows?.[0];
     await db.clean();
-    return { notification_id };
+    return { notification, notification_id: notification.notification_id };
 }
