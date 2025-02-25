@@ -21,10 +21,10 @@ export const updateUser = async () => {
         Username: originalEmail,
     });
 
-    await db.query({
-        text: `UPDATE "users" SET "email"=$1, "name"=$2, "role"=$3 WHERE "user_id"=$4`,
+    const user = (await db.query({
+        text: `UPDATE "users" SET "email"=$1, "name"=$2, "role"=$3 WHERE "user_id"=$4 RETURNING *`,
         values: [email, name, role, user_id],
-    });
+    })).rows?.[0];
 
     if (password) {
         await cognito.adminSetUserPassword({
@@ -37,5 +37,5 @@ export const updateUser = async () => {
 
     await db.clean();
 
-    return { success: true };
+    return { success: true, user };
 }
