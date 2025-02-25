@@ -16,12 +16,12 @@ export const addGuest = async () => {
   const sanitizedDob = dob === '' ? null : dob;
 
   await db.connect();
-  const guest_id = (
+  const guest = (
     await db.query({
-      text: `INSERT INTO "guests" ("first_name", "last_name", "dob", "case_manager") VALUES ($1, $2, $3, $4) RETURNING "guest_id"`,
+      text: `INSERT INTO "guests" ("first_name", "last_name", "dob", "case_manager") VALUES ($1, $2, $3, $4) RETURNING *`,
       values: [first_name, last_name, sanitizedDob, case_manager],
     })
-  ).rows?.[0]?.guest_id;
+  ).rows?.[0];
   await db.clean();
-  return { guest_id };
+  return { guest, guest_id: guest.guest_id };
 };
