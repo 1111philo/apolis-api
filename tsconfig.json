@@ -9,6 +9,10 @@
       "#src/*": [
         "./*"
       ]
-    }
+    },
+    "types": [
+      "node",
+      "@types/aws-lambda"
+    ]
   }
 }
