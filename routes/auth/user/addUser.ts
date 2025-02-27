@@ -29,12 +29,11 @@ export const addUser = async () => {
     Password: event.body.password ?? '123456',
   });
   const sub = User.Attributes.find((obj) => obj.Name === 'sub')?.Value;
-  const user_id = (
+  const user = (
     await db.query({
-      text: `INSERT INTO "users" ("sub", "email", "name", "role") VALUES ($1, $2, $3, $4) RETURNING "user_id"`,
+      text: `INSERT INTO "users" ("sub", "email", "name", "role") VALUES ($1, $2, $3, $4) RETURNING *`,
       values: [sub, event.body.email, event.body.name, event.body.role],
-    })
-  ).rows?.[0]?.user_id;
+    })).rows?.[0]
   await db.clean();
-  return { user_id };
+  return { user, user_id: user.user_id };
 };
