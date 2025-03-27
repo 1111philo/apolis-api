@@ -6,5 +6,8 @@ export const router = async (routes) => {
       return routeFunction();
     }
   }
-  return { message: 'Path not found' };
+  return {
+    statusCode: 404,
+    body: JSON.stringify({ message: 'Path not found' }),
+  };
 };
